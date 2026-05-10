@@ -71,6 +71,26 @@ const result = parseColor("/start FF6600", { format: "hex" });
 // result.hex === '#FF6600'
 ```
 
+### Pattern (informational format string)
+
+Each widget exposes a `.pattern` property — a human-readable format hint you can show to users:
+
+```typescript
+const widget = tgwidget("your_bot").date({ mode: "datetime" });
+widget.pattern; // "YYYY-MM-DD HH:MM"
+
+const widget2 = tgwidget("your_bot").date({ mode: "date", order: "dmy" });
+widget2.pattern; // "DD-MM-YYYY"
+
+const widget3 = tgwidget("your_bot").color({ format: "hex" });
+widget3.pattern; // "#RRGGBB"
+
+// Use in bot messages:
+await ctx.reply(`Введите дату в формате ${widget.pattern}`);
+```
+
+You can also use the standalone `getPattern(widget, payload)` function directly.
+
 ### Widget-level parsing with `parse()`
 
 If you keep a reference to the widget builder, you can call `.parse()` directly — it automatically uses the configured widget type and options. The return type is inferred from the widget type:
@@ -97,6 +117,7 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 - `.style({ colorScheme?, accent?, tint?, liquidGlass?, adaptTgTheme?, adoptTgPalette? })` — Styling
 - `.url(baseUrl?)` — Generate the final URL
 - `.payload()` — Get the raw payload object
+- `.pattern` — Human-readable format string (e.g. `"YYYY-MM-DD HH:MM"`)
 - `.parse(value)` — Parse a widget result string (return type matches widget type)
 
 ### Parsers

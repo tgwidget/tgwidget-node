@@ -1,5 +1,6 @@
 import type { DateMode, DateFormat, DateOrder, ColorFormat, ColorScheme, WidgetType, ParseResult } from "./types";
 import { parseDate, parseColor, parseSchedule } from "./parser";
+import { getPattern } from "./pattern";
 
 const BASE_URL = "https://tgwidget.github.io/";
 const HEX_RE = /^#?[0-9A-Fa-f]{6}$/;
@@ -96,6 +97,11 @@ export class TgWidget<T extends WidgetType | null = null> {
 
   payload(): Record<string, unknown> {
     return this._buildPayload();
+  }
+
+  get pattern(): string {
+    if (!this._widget) throw new Error("No widget type set. Call .date(), .color(), or .schedule() first.");
+    return getPattern(this._widget, this._payload);
   }
 
   parse(value: string): ParseResult<T> {
