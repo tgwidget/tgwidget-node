@@ -4,6 +4,8 @@ export type DateOrder = "ymd" | "dmy" | "mdy";
 export type ColorFormat = "hex" | "rgb" | "hsl";
 export type ColorScheme = "light" | "dark" | "auto";
 
+export type WidgetType = "date" | "color" | "schedule";
+
 export interface WidgetStyle {
   colorScheme?: ColorScheme;
   accent?: string;
@@ -20,6 +22,8 @@ export interface DateResult {
   timeEnd?: string;
   timestamp?: number;
   timestampEnd?: number;
+  dateObj?: Date;
+  dateEndObj?: Date;
 }
 
 export interface ColorResult {
@@ -34,3 +38,9 @@ export interface ScheduleDay {
   start?: string;
   end?: string;
 }
+
+export type ParseResult<T extends WidgetType | null> =
+  T extends "date" ? DateResult :
+  T extends "color" ? ColorResult :
+  T extends "schedule" ? ScheduleDay[] :
+  DateResult | ColorResult | ScheduleDay[];
