@@ -1,4 +1,5 @@
-import type { DateMode, DateFormat, DateOrder, ColorFormat, WidgetStyle, ColorScheme } from "./types";
+import type { DateMode, DateFormat, DateOrder, ColorFormat, ColorScheme, WidgetType, ParseResult } from "./types";
+import { parseDate, parseColor, parseSchedule } from "./parser";
 
 const BASE_URL = "https://tgwidget.github.io/";
 const HEX_RE = /^#?[0-9A-Fa-f]{6}$/;
@@ -23,39 +24,39 @@ function toBase64(str: string): string {
   return btoa(str);
 }
 
-export class TgWidget {
+export class TgWidget<T extends WidgetType | null = null> {
   private _botUsername: string;
-  private _widget: string | null = null;
+  private _widget: WidgetType | null = null;
   private _payload: Record<string, unknown> = {};
-  private _style: WidgetStyle = {};
+  private _style: Record<string, unknown> = {};
 
   constructor(botUsername: string) {
     if (!botUsername) throw new Error("botUsername is required");
     this._botUsername = botUsername;
   }
 
-  date(opts: { mode?: DateMode; format?: DateFormat; order?: DateOrder } = {}): this {
+  date(opts: { mode?: DateMode; format?: DateFormat; order?: DateOrder } = {}): TgWidget<"date"> {
     const { mode = "date", format = "default", order = "ymd" } = opts;
     if (!VALID_DATE_MODES.has(mode)) throw new Error(`Invalid date mode '${mode}'`);
     if (!VALID_DATE_FORMATS.has(format)) throw new Error(`Invalid date format '${format}'`);
     if (!VALID_DATE_ORDERS.has(order)) throw new Error(`Invalid date order '${order}'`);
     this._widget = "date";
     this._payload = { mode, format, order };
-    return this;
+    return this as unknown as TgWidget<"date">;
   }
 
-  color(opts: { format?: ColorFormat } = {}): this {
+  color(opts: { format?: ColorFormat } = {}): TgWidget<"color"> {
     const { format = "hex" } = opts;
     if (!VALID_COLOR_FORMATS.has(format)) throw new Error(`Invalid color format '${format}'`);
     this._widget = "color";
     this._payload = { format };
-    return this;
+    return this as unknown as TgWidget<"color">;
   }
 
-  schedule(): this {
+  schedule(): TgWidget<"schedule"> {
     this._widget = "schedule";
     this._payload = { format: "bunch" };
-    return this;
+    return this as unknown as TgWidget<"schedule">;
   }
 
   style(opts: {
@@ -95,6 +96,19 @@ export class TgWidget {
 
   payload(): Record<string, unknown> {
     return this._buildPayload();
+  }
+
+  parse(value: string): ParseResult<T> {
+    if (this._widget === "date") {
+      return parseDate(value, this._payload as { mode?: DateMode; format?: DateFormat; order?: DateOrder }) as ParseResult<T>;
+    }
+    if (this._widget === "color") {
+      return parseColor(value, this._payload as { format?: ColorFormat }) as ParseResult<T>;
+    }
+    if (this._widget === "schedule") {
+      return parseSchedule(value) as ParseResult<T>;
+    }
+    throw new Error("No widget type set. Call .date(), .color(), or .schedule() first.");
   }
 }
 

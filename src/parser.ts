@@ -1,5 +1,13 @@
 import type { DateMode, DateFormat, DateOrder, ColorFormat, DateResult, ColorResult, ScheduleDay } from "./types";
 
+function stripCommand(value: string): string {
+  if (value.startsWith("/")) {
+    const idx = value.indexOf(" ");
+    if (idx !== -1) return value.slice(idx + 1);
+  }
+  return value;
+}
+
 function parseDateStr(value: string, order: DateOrder): string {
   const parts = value.split("-");
   if (order === "ymd") return `${parts[0]}-${parts[1]}-${parts[2]}`;
@@ -7,10 +15,16 @@ function parseDateStr(value: string, order: DateOrder): string {
   return `${parts[2]}-${parts[0]}-${parts[1]}`; // mdy
 }
 
+function dateFromYmd(ymdStr: string): Date {
+  const [y, m, d] = ymdStr.split("-").map(Number);
+  return new Date(y!, m! - 1, d!);
+}
+
 export function parseDate(
   value: string,
   opts: { mode?: DateMode; format?: DateFormat; order?: DateOrder } = {},
 ): DateResult {
+  value = stripCommand(value);
   const { mode = "date", format = "default", order = "ymd" } = opts;
   const result: DateResult = {};
 
@@ -20,12 +34,14 @@ export function parseDate(
     const ts = parseInt(parts[0]!, 10);
     result.timestamp = ts;
     const dt = new Date(ts * mul);
+    result.dateObj = dt;
     result.date = dt.toISOString().slice(0, 10);
     result.time = dt.toISOString().slice(11, 16);
     if (parts.length > 1) {
       const tsEnd = parseInt(parts[1]!, 10);
       result.timestampEnd = tsEnd;
       const dtEnd = new Date(tsEnd * mul);
+      result.dateEndObj = dtEnd;
       result.dateEnd = dtEnd.toISOString().slice(0, 10);
       result.timeEnd = dtEnd.toISOString().slice(11, 16);
     }
@@ -33,9 +49,12 @@ export function parseDate(
   }
 
   switch (mode) {
-    case "date":
-      result.date = parseDateStr(value, order);
+    case "date": {
+      const dateStr = parseDateStr(value, order);
+      result.date = dateStr;
+      result.dateObj = dateFromYmd(dateStr);
       break;
+    }
     case "time": {
       const [h, m] = value.split("-");
       result.time = `${h}:${m}`;
@@ -43,15 +62,23 @@ export function parseDate(
     }
     case "datetime": {
       const [datePart, timePart] = value.split("_");
-      result.date = parseDateStr(datePart!, order);
+      const dateStr = parseDateStr(datePart!, order);
       const [h, m] = timePart!.split("-");
+      result.date = dateStr;
       result.time = `${h}:${m}`;
+      const d = dateFromYmd(dateStr);
+      d.setHours(parseInt(h!, 10), parseInt(m!, 10), 0, 0);
+      result.dateObj = d;
       break;
     }
     case "date-range": {
       const parts = value.split("_");
-      result.date = parseDateStr(parts[0]!, order);
-      result.dateEnd = parseDateStr(parts[1]!, order);
+      const dateStr = parseDateStr(parts[0]!, order);
+      const dateEndStr = parseDateStr(parts[1]!, order);
+      result.date = dateStr;
+      result.dateEnd = dateEndStr;
+      result.dateObj = dateFromYmd(dateStr);
+      result.dateEndObj = dateFromYmd(dateEndStr);
       break;
     }
     case "time-range": {
@@ -68,6 +95,7 @@ export function parseDate(
 }
 
 export function parseColor(value: string, opts: { format?: ColorFormat } = {}): ColorResult {
+  value = stripCommand(value);
   const { format = "hex" } = opts;
   const result: ColorResult = { raw: value };
   if (format === "hex") {
@@ -83,6 +111,7 @@ export function parseColor(value: string, opts: { format?: ColorFormat } = {}): 
 }
 
 export function parseSchedule(value: string): ScheduleDay[] {
+  value = stripCommand(value);
   if (value.length !== 56) {
     throw new Error(`Schedule bunch format must be 56 chars, got ${value.length}`);
   }

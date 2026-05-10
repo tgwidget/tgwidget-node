@@ -6,8 +6,10 @@ export type {
   DateOrder,
   ColorFormat,
   ColorScheme,
+  WidgetType,
   WidgetStyle,
   DateResult,
   ColorResult,
   ScheduleDay,
+  ParseResult,
 } from "./types";
