@@ -1,4 +1,4 @@
-import type { DateMode, DateFormat, DateOrder, ColorFormat, ColorScheme, WidgetType, ParseResult } from "./types";
+import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, ColorScheme, WidgetType, ParseResult } from "./types";
 import { parseDate, parseColor, parseSchedule } from "./parser";
 import { getPattern } from "./pattern";
 
@@ -36,13 +36,17 @@ export class TgWidget<T extends WidgetType | null = null> {
     this._botUsername = botUsername;
   }
 
-  date(opts: { mode?: DateMode; format?: DateFormat; order?: DateOrder } = {}): TgWidget<"date"> {
+  date(opts: DateOpts = {}): TgWidget<"date"> {
     const { mode = "date", format = "default", order = "ymd" } = opts;
     if (!VALID_DATE_MODES.has(mode)) throw new Error(`Invalid date mode '${mode}'`);
     if (!VALID_DATE_FORMATS.has(format)) throw new Error(`Invalid date format '${format}'`);
     if (!VALID_DATE_ORDERS.has(order)) throw new Error(`Invalid date order '${order}'`);
     this._widget = "date";
     this._payload = { mode, format, order };
+    if (opts.autoNow !== undefined) this._payload.autoNow = opts.autoNow;
+    if (opts.default !== undefined) this._payload.default = opts.default;
+    if (opts.min !== undefined) this._payload.min = opts.min;
+    if (opts.max !== undefined) this._payload.max = opts.max;
     return this as unknown as TgWidget<"date">;
   }
 
@@ -106,7 +110,7 @@ export class TgWidget<T extends WidgetType | null = null> {
 
   parse(value: string): ParseResult<T> {
     if (this._widget === "date") {
-      return parseDate(value, this._payload as { mode?: DateMode; format?: DateFormat; order?: DateOrder }) as ParseResult<T>;
+      return parseDate(value, this._payload as DateOpts) as ParseResult<T>;
     }
     if (this._widget === "color") {
       return parseColor(value, this._payload as { format?: ColorFormat }) as ParseResult<T>;

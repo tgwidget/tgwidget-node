@@ -6,6 +6,16 @@ export type ColorScheme = "light" | "dark" | "auto";
 
 export type WidgetType = "date" | "color" | "schedule";
 
+export interface DateOpts {
+  mode?: DateMode;
+  format?: DateFormat;
+  order?: DateOrder;
+  autoNow?: boolean;
+  default?: string;
+  min?: string;
+  max?: string;
+}
+
 export interface WidgetStyle {
   colorScheme?: ColorScheme;
   accent?: string;
