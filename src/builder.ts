@@ -10,7 +10,7 @@ const VALID_DATE_FORMATS = new Set(["default", "unix-s", "unix-ms"]);
 const VALID_DATE_ORDERS = new Set(["ymd", "dmy", "mdy"]);
 const VALID_COLOR_FORMATS = new Set(["hex", "rgb", "hsl"]);
 const VALID_COLOR_SCHEMES = new Set(["light", "dark", "auto"]);
-const VALID_SCHEDULE_FORMATS = new Set(["bunch", "point"]);
+const VALID_SCHEDULE_FORMATS = new Set(["range", "single"]);
 
 function validateHex(color: string, name: string): string {
   if (!HEX_RE.test(color)) {
@@ -60,7 +60,7 @@ export class TgWidget<T extends WidgetType | null = null> {
   }
 
   schedule(opts: ScheduleOpts = {}): TgWidget<"schedule"> {
-    const { format = "bunch" } = opts;
+    const { format = "range" } = opts;
     if (!VALID_SCHEDULE_FORMATS.has(format)) throw new Error(`Invalid schedule format '${format}'`);
     this._widget = "schedule";
     this._payload = { format };

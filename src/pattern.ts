@@ -44,8 +44,8 @@ export function getPattern(widget: WidgetType, payload: Record<string, unknown>)
   }
 
   if (widget === "schedule") {
-    const fmt = (payload.format as string) ?? "bunch";
-    if (fmt === "point") return "HH:MM × 7 days";
+    const fmt = (payload.format as string) ?? "range";
+    if (fmt === "single") return "HH:MM × 7 days";
     return "HH:MM—HH:MM × 7 days";
   }
 

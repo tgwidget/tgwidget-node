@@ -17,4 +17,4 @@ export type {
   ScheduleDay,
   ParseResult,
 } from "./types";
-export { SCHEDULE_BUNCH_LENGTH, SCHEDULE_POINT_LENGTH, SCHEDULE_POINT_DISABLED } from "./types";
+export { SCHEDULE_RANGE_LENGTH, SCHEDULE_SINGLE_LENGTH, SCHEDULE_SINGLE_DISABLED } from "./types";
