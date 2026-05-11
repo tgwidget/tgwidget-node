@@ -71,6 +71,38 @@ const result = parseColor("/start FF6600", { format: "hex" });
 // result.hex === '#FF6600'
 ```
 
+### Date options
+
+The `.date()` method accepts extra options for controlling initial state and validation:
+
+```typescript
+// Duration picker: no auto-select, starts at 00:00:00
+const url = tgwidget("your_bot")
+  .date({ mode: "time-seconds", autoNow: false })
+  .url();
+
+// Duration with custom default
+const url = tgwidget("your_bot")
+  .date({ mode: "time-seconds", autoNow: false, default: "01-30-00" })
+  .url();
+
+// Time picker with allowed range
+const url = tgwidget("your_bot")
+  .date({ mode: "time", min: "09-00", max: "18-00" })
+  .url();
+
+// Range validation in parser
+const widget = tgwidget("your_bot").date({ mode: "time-seconds", min: "00-00-00", max: "23-59-59" });
+widget.parse("25-00-00"); // throws RangeError
+```
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `autoNow` | `boolean` | Auto-select current time on open. Default: `true` for time/datetime, not set otherwise. |
+| `default` | `string` | Default value in widget format (e.g. `"01-30-00"`). Used when `autoNow` is `false`. |
+| `min` | `string` | Minimum allowed value. Validated both in frontend and by SDK parser. |
+| `max` | `string` | Maximum allowed value. Validated both in frontend and by SDK parser. |
+
 ### Pattern (informational format string)
 
 Each widget exposes a `.pattern` property — a human-readable format hint you can show to users:
@@ -111,7 +143,7 @@ const result = widget.parse("/start 2025-03-15_14-30");
 
 Create a widget builder. Returns a chainable `TgWidget` instance.
 
-- `.date({ mode?, format?, order? })` — Date/time picker → `TgWidget<"date">`
+- `.date({ mode?, format?, order?, autoNow?, default?, min?, max? })` — Date/time picker → `TgWidget<"date">`
 - `.color({ format? })` — Color picker → `TgWidget<"color">`
 - `.schedule()` — Weekly schedule → `TgWidget<"schedule">`
 - `.style({ colorScheme?, accent?, tint?, liquidGlass?, adaptTgTheme?, adoptTgPalette? })` — Styling
@@ -122,7 +154,7 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 
 ### Parsers
 
-- `parseDate(value, { mode?, format?, order? })` → `DateResult`
+- `parseDate(value, { mode?, format?, order?, min?, max? })` → `DateResult` (throws `RangeError` if value is outside min/max)
 - `parseColor(value, { format? })` → `ColorResult`
 - `parseSchedule(value)` → `ScheduleDay[]`
 

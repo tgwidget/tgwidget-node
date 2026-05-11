@@ -5,6 +5,7 @@ export type {
   DateMode,
   DateFormat,
   DateOrder,
+  DateOpts,
   ColorFormat,
   ColorScheme,
   WidgetType,

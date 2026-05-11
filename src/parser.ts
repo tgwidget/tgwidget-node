@@ -1,4 +1,4 @@
-import type { DateMode, DateFormat, DateOrder, ColorFormat, DateResult, ColorResult, ScheduleDay } from "./types";
+import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, DateResult, ColorResult, ScheduleDay } from "./types";
 
 function stripCommand(value: string): string {
   if (value.startsWith("/")) {
@@ -6,6 +6,43 @@ function stripCommand(value: string): string {
     if (idx !== -1) return value.slice(idx + 1);
   }
   return value;
+}
+
+function timeToSeconds(timeStr: string): number {
+  const parts = timeStr.split(/[-:]/).map(Number);
+  const h = parts[0] ?? 0;
+  const m = parts[1] ?? 0;
+  const s = parts[2] ?? 0;
+  return h * 3600 + m * 60 + s;
+}
+
+function validateRange(value: string, mode: DateMode, min?: string, max?: string): void {
+  if (!min && !max) return;
+
+  if (mode === "time" || mode === "time-seconds") {
+    const sec = timeToSeconds(value);
+    if (min !== undefined && sec < timeToSeconds(min)) {
+      throw new RangeError(`Value ${value} is below minimum ${min}`);
+    }
+    if (max !== undefined && sec > timeToSeconds(max)) {
+      throw new RangeError(`Value ${value} is above maximum ${max}`);
+    }
+  } else if (mode === "date" || mode === "datetime") {
+    const normalized = value.replace(/_(\d{2})-(\d{2})$/, "T$1:$2").replace(/-/g, (m, offset, str) => {
+      const before = str.slice(0, offset);
+      const dashCount = (before.match(/-/g) || []).length;
+      return dashCount < 2 ? "-" : m;
+    });
+    const ts = new Date(normalized).getTime();
+    if (min !== undefined) {
+      const minNorm = min.replace(/_(\d{2})-(\d{2})$/, "T$1:$2");
+      if (ts < new Date(minNorm).getTime()) throw new RangeError(`Value ${value} is below minimum ${min}`);
+    }
+    if (max !== undefined) {
+      const maxNorm = max.replace(/_(\d{2})-(\d{2})$/, "T$1:$2");
+      if (ts > new Date(maxNorm).getTime()) throw new RangeError(`Value ${value} is above maximum ${max}`);
+    }
+  }
 }
 
 function parseDateStr(value: string, order: DateOrder): string {
@@ -22,11 +59,13 @@ function dateFromYmd(ymdStr: string): Date {
 
 export function parseDate(
   value: string,
-  opts: { mode?: DateMode; format?: DateFormat; order?: DateOrder } = {},
+  opts: DateOpts = {},
 ): DateResult {
   value = stripCommand(value);
-  const { mode = "date", format = "default", order = "ymd" } = opts;
+  const { mode = "date", format = "default", order = "ymd", min, max } = opts;
   const result: DateResult = {};
+
+  validateRange(value, mode, min, max);
 
   if (format === "unix-s" || format === "unix-ms") {
     const parts = value.split("_");
