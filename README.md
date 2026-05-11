@@ -24,8 +24,8 @@ const url = tgwidget("your_bot").color({ format: "hex" }).url();
 // Schedule (range — time windows per day)
 const url = tgwidget("your_bot").schedule().url();
 
-// Schedule (point — fixed time per day)
-const url = tgwidget("your_bot").schedule({ format: "point" }).url();
+// Schedule (single — fixed time per day)
+const url = tgwidget("your_bot").schedule({ format: "single" }).url();
 
 // With styling
 const url = tgwidget("your_bot")
@@ -59,12 +59,12 @@ const result = parseDate("1710460800_1718236800", { mode: "date-range", format: 
 const result = parseColor("FF6600", { format: "hex" });
 // { raw: 'FF6600', hex: '#FF6600' }
 
-// Schedule — range (56-char bunch format)
+// Schedule — range (56-char range format)
 const result = parseSchedule("09001800090018000000000009001800090018000000000000000000");
 // [{ enabled: true, start: '09:00', end: '18:00' }, ...]
 
-// Schedule — point (28-char point format)
-const result = parseSchedule("1200120099991200120099999999", { format: "point" });
+// Schedule — single (28-char single format)
+const result = parseSchedule("1200120099991200120099999999", { format: "single" });
 // [{ enabled: true, time: '12:00' }, { enabled: true, time: '12:00' }, { enabled: false }, ...]
 ```
 
@@ -152,7 +152,7 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 
 - `.date({ mode?, format?, order?, autoNow?, default?, min?, max? })` — Date/time picker → `TgWidget<"date">`
 - `.color({ format? })` — Color picker → `TgWidget<"color">`
-- `.schedule({ format? })` — Weekly schedule → `TgWidget<"schedule">` (format: `'bunch'` | `'point'`)
+- `.schedule({ format? })` — Weekly schedule → `TgWidget<"schedule">` (format: `'range'` | `'single'`)
 - `.style({ colorScheme?, accent?, tint?, liquidGlass?, adaptTgTheme?, adoptTgPalette? })` — Styling
 - `.url(baseUrl?)` — Generate the final URL
 - `.payload()` — Get the raw payload object
@@ -180,5 +180,5 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 
 #### `ScheduleDay`
 - `enabled` — whether the day is active
-- `start`, `end` — time strings e.g. `'09:00'` (bunch format)
-- `time` — single time string e.g. `'12:00'` (point format)
+- `start`, `end` — time strings e.g. `'09:00'` (range format)
+- `time` — single time string e.g. `'12:00'` (single format)

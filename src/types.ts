@@ -3,7 +3,7 @@ export type DateFormat = "default" | "unix-s" | "unix-ms";
 export type DateOrder = "ymd" | "dmy" | "mdy";
 export type ColorFormat = "hex" | "rgb" | "hsl";
 export type ColorScheme = "light" | "dark" | "auto";
-export type ScheduleFormat = "bunch" | "point";
+export type ScheduleFormat = "range" | "single";
 
 export type WidgetType = "date" | "color" | "schedule";
 
@@ -62,6 +62,6 @@ export type ParseResult<T extends WidgetType | null> =
   T extends "schedule" ? ScheduleDay[] :
   DateResult | ColorResult | ScheduleDay[];
 
-export const SCHEDULE_BUNCH_LENGTH = 56;
-export const SCHEDULE_POINT_LENGTH = 28;
-export const SCHEDULE_POINT_DISABLED = "9999";
+export const SCHEDULE_RANGE_LENGTH = 56;
+export const SCHEDULE_SINGLE_LENGTH = 28;
+export const SCHEDULE_SINGLE_DISABLED = "9999";

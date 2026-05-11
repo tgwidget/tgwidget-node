@@ -1,5 +1,5 @@
 import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, DateResult, ColorResult, ScheduleDay, ScheduleOpts, ScheduleFormat } from "./types";
-import { SCHEDULE_BUNCH_LENGTH, SCHEDULE_POINT_LENGTH, SCHEDULE_POINT_DISABLED } from "./types";
+import { SCHEDULE_RANGE_LENGTH, SCHEDULE_SINGLE_LENGTH, SCHEDULE_SINGLE_DISABLED } from "./types";
 
 function stripCommand(value: string): string {
   if (value.startsWith("/")) {
@@ -158,13 +158,13 @@ export function parseColor(value: string, opts: { format?: ColorFormat } = {}): 
 
 function detectScheduleFormat(value: string, opts: ScheduleOpts): ScheduleFormat {
   if (opts.format) return opts.format;
-  if (value.length === SCHEDULE_POINT_LENGTH) return "point";
-  return "bunch";
+  if (value.length === SCHEDULE_SINGLE_LENGTH) return "single";
+  return "range";
 }
 
-function parseBunchSchedule(value: string): ScheduleDay[] {
-  if (value.length !== SCHEDULE_BUNCH_LENGTH) {
-    throw new Error(`Schedule bunch format must be ${SCHEDULE_BUNCH_LENGTH} chars, got ${value.length}`);
+function parseRangeSchedule(value: string): ScheduleDay[] {
+  if (value.length !== SCHEDULE_RANGE_LENGTH) {
+    throw new Error(`Schedule range format must be ${SCHEDULE_RANGE_LENGTH} chars, got ${value.length}`);
   }
   const days: ScheduleDay[] = [];
   for (let i = 0; i < 7; i++) {
@@ -182,14 +182,14 @@ function parseBunchSchedule(value: string): ScheduleDay[] {
   return days;
 }
 
-function parsePointSchedule(value: string): ScheduleDay[] {
-  if (value.length !== SCHEDULE_POINT_LENGTH) {
-    throw new Error(`Schedule point format must be ${SCHEDULE_POINT_LENGTH} chars, got ${value.length}`);
+function parseSingleSchedule(value: string): ScheduleDay[] {
+  if (value.length !== SCHEDULE_SINGLE_LENGTH) {
+    throw new Error(`Schedule single format must be ${SCHEDULE_SINGLE_LENGTH} chars, got ${value.length}`);
   }
   const days: ScheduleDay[] = [];
   for (let i = 0; i < 7; i++) {
     const chunk = value.slice(i * 4, (i + 1) * 4);
-    if (chunk === SCHEDULE_POINT_DISABLED) {
+    if (chunk === SCHEDULE_SINGLE_DISABLED) {
       days.push({ enabled: false });
     } else {
       days.push({
@@ -204,5 +204,5 @@ function parsePointSchedule(value: string): ScheduleDay[] {
 export function parseSchedule(value: string, opts: ScheduleOpts = {}): ScheduleDay[] {
   value = stripCommand(value);
   const format = detectScheduleFormat(value, opts);
-  return format === "point" ? parsePointSchedule(value) : parseBunchSchedule(value);
+  return format === "single" ? parseSingleSchedule(value) : parseRangeSchedule(value);
 }
