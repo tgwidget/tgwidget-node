@@ -6,7 +6,7 @@ const DATE_PATTERNS: Record<DateOrder, string> = {
   mdy: "MM-DD-YYYY",
 };
 
-const TIME_PATTERN = "HH:MM";
+const TIME_PATTERN = "HH-MM";
 
 export function getPattern(widget: WidgetType, payload: Record<string, unknown>): string {
   if (widget === "date") {
@@ -20,11 +20,11 @@ export function getPattern(widget: WidgetType, payload: Record<string, unknown>)
       case "time":
         return TIME_PATTERN;
       case "datetime":
-        return `${datePat} ${TIME_PATTERN}`;
+        return `${datePat}_${TIME_PATTERN}`;
       case "date-range":
-        return `${datePat} — ${datePat}`;
+        return `${datePat}_${datePat}`;
       case "time-range":
-        return `${TIME_PATTERN} — ${TIME_PATTERN}`;
+        return `${TIME_PATTERN}_${TIME_PATTERN}`;
     }
   }
 
