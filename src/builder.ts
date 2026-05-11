@@ -1,4 +1,4 @@
-import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, ColorScheme, WidgetType, ParseResult } from "./types";
+import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, ColorScheme, ScheduleFormat, ScheduleOpts, WidgetType, ParseResult } from "./types";
 import { parseDate, parseColor, parseSchedule } from "./parser";
 import { getPattern } from "./pattern";
 
@@ -10,6 +10,7 @@ const VALID_DATE_FORMATS = new Set(["default", "unix-s", "unix-ms"]);
 const VALID_DATE_ORDERS = new Set(["ymd", "dmy", "mdy"]);
 const VALID_COLOR_FORMATS = new Set(["hex", "rgb", "hsl"]);
 const VALID_COLOR_SCHEMES = new Set(["light", "dark", "auto"]);
+const VALID_SCHEDULE_FORMATS = new Set(["bunch", "point"]);
 
 function validateHex(color: string, name: string): string {
   if (!HEX_RE.test(color)) {
@@ -58,9 +59,11 @@ export class TgWidget<T extends WidgetType | null = null> {
     return this as unknown as TgWidget<"color">;
   }
 
-  schedule(): TgWidget<"schedule"> {
+  schedule(opts: ScheduleOpts = {}): TgWidget<"schedule"> {
+    const { format = "bunch" } = opts;
+    if (!VALID_SCHEDULE_FORMATS.has(format)) throw new Error(`Invalid schedule format '${format}'`);
     this._widget = "schedule";
-    this._payload = { format: "bunch" };
+    this._payload = { format };
     return this as unknown as TgWidget<"schedule">;
   }
 
@@ -116,7 +119,7 @@ export class TgWidget<T extends WidgetType | null = null> {
       return parseColor(value, this._payload as { format?: ColorFormat }) as ParseResult<T>;
     }
     if (this._widget === "schedule") {
-      return parseSchedule(value) as ParseResult<T>;
+      return parseSchedule(value, this._payload as ScheduleOpts) as ParseResult<T>;
     }
     throw new Error("No widget type set. Call .date(), .color(), or .schedule() first.");
   }

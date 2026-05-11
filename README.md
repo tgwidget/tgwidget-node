@@ -21,8 +21,11 @@ const url = tgwidget("your_bot").date({ mode: "datetime", format: "unix-s" }).ur
 // Color picker
 const url = tgwidget("your_bot").color({ format: "hex" }).url();
 
-// Schedule
+// Schedule (range — time windows per day)
 const url = tgwidget("your_bot").schedule().url();
+
+// Schedule (point — fixed time per day)
+const url = tgwidget("your_bot").schedule({ format: "point" }).url();
 
 // With styling
 const url = tgwidget("your_bot")
@@ -56,9 +59,13 @@ const result = parseDate("1710460800_1718236800", { mode: "date-range", format: 
 const result = parseColor("FF6600", { format: "hex" });
 // { raw: 'FF6600', hex: '#FF6600' }
 
-// Schedule (56-char bunch format)
+// Schedule — range (56-char bunch format)
 const result = parseSchedule("09001800090018000000000009001800090018000000000000000000");
 // [{ enabled: true, start: '09:00', end: '18:00' }, ...]
+
+// Schedule — point (28-char point format)
+const result = parseSchedule("1200120099991200120099999999", { format: "point" });
+// [{ enabled: true, time: '12:00' }, { enabled: true, time: '12:00' }, { enabled: false }, ...]
 ```
 
 All parsers automatically handle Telegram bot command prefixes — you can pass raw `/start payload` strings directly:
@@ -145,7 +152,7 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 
 - `.date({ mode?, format?, order?, autoNow?, default?, min?, max? })` — Date/time picker → `TgWidget<"date">`
 - `.color({ format? })` — Color picker → `TgWidget<"color">`
-- `.schedule()` — Weekly schedule → `TgWidget<"schedule">`
+- `.schedule({ format? })` — Weekly schedule → `TgWidget<"schedule">` (format: `'bunch'` | `'point'`)
 - `.style({ colorScheme?, accent?, tint?, liquidGlass?, adaptTgTheme?, adoptTgPalette? })` — Styling
 - `.url(baseUrl?)` — Generate the final URL
 - `.payload()` — Get the raw payload object
@@ -156,7 +163,7 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 
 - `parseDate(value, { mode?, format?, order?, min?, max? })` → `DateResult` (throws `RangeError` if value is outside min/max)
 - `parseColor(value, { format? })` → `ColorResult`
-- `parseSchedule(value)` → `ScheduleDay[]`
+- `parseSchedule(value, { format? })` → `ScheduleDay[]`
 
 ### Result types
 
@@ -173,4 +180,5 @@ Create a widget builder. Returns a chainable `TgWidget` instance.
 
 #### `ScheduleDay`
 - `enabled` — whether the day is active
-- `start`, `end` — time strings e.g. `'09:00'`
+- `start`, `end` — time strings e.g. `'09:00'` (bunch format)
+- `time` — single time string e.g. `'12:00'` (point format)

@@ -1,4 +1,5 @@
-import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, DateResult, ColorResult, ScheduleDay } from "./types";
+import type { DateMode, DateFormat, DateOrder, DateOpts, ColorFormat, DateResult, ColorResult, ScheduleDay, ScheduleOpts, ScheduleFormat } from "./types";
+import { SCHEDULE_BUNCH_LENGTH, SCHEDULE_POINT_LENGTH, SCHEDULE_POINT_DISABLED } from "./types";
 
 function stripCommand(value: string): string {
   if (value.startsWith("/")) {
@@ -155,10 +156,15 @@ export function parseColor(value: string, opts: { format?: ColorFormat } = {}): 
   return result;
 }
 
-export function parseSchedule(value: string): ScheduleDay[] {
-  value = stripCommand(value);
-  if (value.length !== 56) {
-    throw new Error(`Schedule bunch format must be 56 chars, got ${value.length}`);
+function detectScheduleFormat(value: string, opts: ScheduleOpts): ScheduleFormat {
+  if (opts.format) return opts.format;
+  if (value.length === SCHEDULE_POINT_LENGTH) return "point";
+  return "bunch";
+}
+
+function parseBunchSchedule(value: string): ScheduleDay[] {
+  if (value.length !== SCHEDULE_BUNCH_LENGTH) {
+    throw new Error(`Schedule bunch format must be ${SCHEDULE_BUNCH_LENGTH} chars, got ${value.length}`);
   }
   const days: ScheduleDay[] = [];
   for (let i = 0; i < 7; i++) {
@@ -174,4 +180,29 @@ export function parseSchedule(value: string): ScheduleDay[] {
     }
   }
   return days;
+}
+
+function parsePointSchedule(value: string): ScheduleDay[] {
+  if (value.length !== SCHEDULE_POINT_LENGTH) {
+    throw new Error(`Schedule point format must be ${SCHEDULE_POINT_LENGTH} chars, got ${value.length}`);
+  }
+  const days: ScheduleDay[] = [];
+  for (let i = 0; i < 7; i++) {
+    const chunk = value.slice(i * 4, (i + 1) * 4);
+    if (chunk === SCHEDULE_POINT_DISABLED) {
+      days.push({ enabled: false });
+    } else {
+      days.push({
+        enabled: true,
+        time: `${chunk.slice(0, 2)}:${chunk.slice(2, 4)}`,
+      });
+    }
+  }
+  return days;
+}
+
+export function parseSchedule(value: string, opts: ScheduleOpts = {}): ScheduleDay[] {
+  value = stripCommand(value);
+  const format = detectScheduleFormat(value, opts);
+  return format === "point" ? parsePointSchedule(value) : parseBunchSchedule(value);
 }

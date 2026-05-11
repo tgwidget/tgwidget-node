@@ -8,6 +8,8 @@ export type {
   DateOpts,
   ColorFormat,
   ColorScheme,
+  ScheduleFormat,
+  ScheduleOpts,
   WidgetType,
   WidgetStyle,
   DateResult,
@@ -15,3 +17,4 @@ export type {
   ScheduleDay,
   ParseResult,
 } from "./types";
+export { SCHEDULE_BUNCH_LENGTH, SCHEDULE_POINT_LENGTH, SCHEDULE_POINT_DISABLED } from "./types";

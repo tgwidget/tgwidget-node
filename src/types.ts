@@ -3,6 +3,7 @@ export type DateFormat = "default" | "unix-s" | "unix-ms";
 export type DateOrder = "ymd" | "dmy" | "mdy";
 export type ColorFormat = "hex" | "rgb" | "hsl";
 export type ColorScheme = "light" | "dark" | "auto";
+export type ScheduleFormat = "bunch" | "point";
 
 export type WidgetType = "date" | "color" | "schedule";
 
@@ -44,10 +45,15 @@ export interface ColorResult {
   hsl?: [number, number, number];
 }
 
+export interface ScheduleOpts {
+  format?: ScheduleFormat;
+}
+
 export interface ScheduleDay {
   enabled: boolean;
   start?: string;
   end?: string;
+  time?: string;
 }
 
 export type ParseResult<T extends WidgetType | null> =
@@ -55,3 +61,7 @@ export type ParseResult<T extends WidgetType | null> =
   T extends "color" ? ColorResult :
   T extends "schedule" ? ScheduleDay[] :
   DateResult | ColorResult | ScheduleDay[];
+
+export const SCHEDULE_BUNCH_LENGTH = 56;
+export const SCHEDULE_POINT_LENGTH = 28;
+export const SCHEDULE_POINT_DISABLED = "9999";
