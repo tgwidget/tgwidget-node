@@ -60,6 +60,12 @@ export function parseDate(
       result.time = `${h}:${m}`;
       break;
     }
+    case "time-seconds": {
+      const [h, m, s] = value.split("-");
+      result.time = `${h}:${m}:${s}`;
+      result.seconds = parseInt(s!, 10);
+      break;
+    }
     case "datetime": {
       const [datePart, timePart] = value.split("_");
       const dateStr = parseDateStr(datePart!, order);

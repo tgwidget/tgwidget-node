@@ -5,7 +5,7 @@ import { getPattern } from "./pattern";
 const BASE_URL = "https://tgwidget.github.io/";
 const HEX_RE = /^#?[0-9A-Fa-f]{6}$/;
 
-const VALID_DATE_MODES = new Set(["date", "time", "datetime", "date-range", "time-range"]);
+const VALID_DATE_MODES = new Set(["date", "time", "time-seconds", "datetime", "date-range", "time-range"]);
 const VALID_DATE_FORMATS = new Set(["default", "unix-s", "unix-ms"]);
 const VALID_DATE_ORDERS = new Set(["ymd", "dmy", "mdy"]);
 const VALID_COLOR_FORMATS = new Set(["hex", "rgb", "hsl"]);
