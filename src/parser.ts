@@ -166,6 +166,9 @@ function parseRangeSchedule(value: string): ScheduleDay[] {
   if (value.length !== SCHEDULE_RANGE_LENGTH) {
     throw new Error(`Schedule range format must be ${SCHEDULE_RANGE_LENGTH} chars, got ${value.length}`);
   }
+  if (!/^\d+$/.test(value)) {
+    throw new Error("Schedule value must contain only digits");
+  }
   const days: ScheduleDay[] = [];
   for (let i = 0; i < 7; i++) {
     const chunk = value.slice(i * 8, (i + 1) * 8);
@@ -185,6 +188,9 @@ function parseRangeSchedule(value: string): ScheduleDay[] {
 function parseSingleSchedule(value: string): ScheduleDay[] {
   if (value.length !== SCHEDULE_SINGLE_LENGTH) {
     throw new Error(`Schedule single format must be ${SCHEDULE_SINGLE_LENGTH} chars, got ${value.length}`);
+  }
+  if (!/^\d+$/.test(value)) {
+    throw new Error("Schedule value must contain only digits");
   }
   const days: ScheduleDay[] = [];
   for (let i = 0; i < 7; i++) {

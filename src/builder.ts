@@ -20,9 +20,6 @@ function validateHex(color: string, name: string): string {
 }
 
 function toBase64(str: string): string {
-  if (typeof Buffer !== "undefined") {
-    return Buffer.from(str).toString("base64");
-  }
   return btoa(str);
 }
 
